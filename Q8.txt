@@ -1,0 +1,24 @@
+import pyodbc 
+import pandas as pd
+import matplotlib.pyplot as plt
+
+conn = pyodbc.connect("Driver={SQL Server};"
+                      "Server=FATHIYA;"
+                      "Database=db_final;"
+                      "Trusted_Connection=yes;")
+
+cursor = conn.cursor()
+sql = cursor.execute("SELECT TOP 10 d.Mahasiswa, COUNT(*) AS jml_akses FROM dbo.MHS d join dbo.Login l on d.Mahasiswa=l.users WHERE l.days <= 190 GROUP BY d.Mahasiswa HAVING (COUNT(d.Mahasiswa) > 1) ORDER BY jml_akses DESC;")
+result = sql.fetchall() 
+#for row in result:
+#     print(row)
+df=pd.DataFrame([ij for ij in i] for i in result)
+df.rename(columns={0: 'Mahasiswa', 1:'Jumlah'}, inplace = True)
+print (df)
+y=df['Mahasiswa']
+x=df['Jumlah']
+plt.title ('Mahasiswa Terbanyak Akses Share ITS')
+#plt.barh(x,y)
+plt.plot(x,y)
+#plt.scatter(x,y)
+plt.show()
